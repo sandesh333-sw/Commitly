@@ -12,7 +12,7 @@ yargs(hideBin(process.argv))
   .command("init", "Initialise a new repository", {}, initRepo)
 
   .command(
-    "add",
+    "add<file>",
     "Add a file to repository",
     (yargs) => {
       yargs.positional("file", {
@@ -20,7 +20,9 @@ yargs(hideBin(process.argv))
         type: "string",
       });
     },
-    addRepo
+    (argv) => {
+      addRepo(argv.file);
+    }
   )
 
   .command(

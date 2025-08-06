@@ -26,7 +26,7 @@ yargs(hideBin(process.argv))
   )
 
   .command(
-    "commit",
+    "commit <message>",
     "commit the staged files",
     (yargs) => {
       yargs.positional("message", {
@@ -34,7 +34,10 @@ yargs(hideBin(process.argv))
         type: "string",
       });
     },
-    commitRepo
+    (argv) => {
+      commitRepo(argv.message);
+    }
+    
   )
 
   .command("push", "Push commits", {}, pushRepo)

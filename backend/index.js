@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const http = require("http");
 const {Server} = require("socket.io");
 dotenv.config();
+const mainRouter = require("./routes/main.router.js");
 
 const yargs = require("yargs");
 const { hideBin } = require("yargs/helpers");
@@ -88,10 +89,9 @@ async function startServer() {
     process.exit(1); 
   }
 
-  app.get('/', (req, res) => {
-    res.send('Welcome');
-  });
+  app.use("/", mainRouter);
 
+  
   const httpServer = http.createServer(app);
 
   const io = new Server(httpServer, {

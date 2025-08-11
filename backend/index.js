@@ -1,3 +1,12 @@
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const http = require("http");
+const {Server} = require("socket.io");
+dotenv.config();
+
 const yargs = require("yargs");
 const { hideBin } = require("yargs/helpers");
 
@@ -62,6 +71,44 @@ yargs(hideBin(process.argv))
   .demandCommand(1, "Please insert at least one command")
   .help().argv;
 
-function startServer(){
-  console.log("Server called");
+async function startServer() {
+  const app = express();
+  const port = process.env.PORT || 3000;
+
+  app.use(cors({ origin: '*' }));
+  app.use(express.json());
+
+  const mongoURI = process.env.MONGO_URI;
+
+  try {
+    await mongoose.connect(mongoURI);
+    console.log('Mongodb connected');
+  } catch (err) {
+    console.error('Unable to connect', err);
+    process.exit(1); 
+  }
+
+  app.get('/', (req, res) => {
+    res.send('Welcome');
+  });
+
+  const httpServer = http.createServer(app);
+
+  const io = new Server(httpServer, {
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST'],
+    },
+  });
+
+  io.on('connection', (socket) => {
+    socket.on('joinRoom', (userID) => {
+      console.log('User joined room:', userID);
+      socket.join(userID);
+    });
+  });
+
+  httpServer.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
 }

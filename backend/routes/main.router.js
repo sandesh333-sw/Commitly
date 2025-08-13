@@ -5,13 +5,14 @@ const issueRouter = require("./issue.router");
 
 const mainRouter = express.Router();
 
-mainRouter.use(userRouter);
-mainRouter.use(repoRouter);
-mainRouter.use(issueRouter);
+// Routers with base paths
+mainRouter.use("/users", userRouter);
+mainRouter.use("/repos", repoRouter);
+mainRouter.use("/issues", issueRouter);
 
-
+// Root route
 mainRouter.get("/", (req, res) => {
-    res.send('Welcome');
-  });
+  res.send("Welcome");
+});
 
 module.exports = mainRouter;

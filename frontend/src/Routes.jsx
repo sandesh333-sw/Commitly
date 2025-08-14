@@ -13,7 +13,7 @@ import { useAuth } from "../authContext";
 const ProjectRoutes = () => {
     const { currentUser, setCurrentUser } = useAuth();
     const navigate = useNavigate();
-    const location = useLocation(); // safer than window.location
+    const location = useLocation(); 
 
     useEffect(() => {
         const userIdFromStorage = localStorage.getItem("userId");

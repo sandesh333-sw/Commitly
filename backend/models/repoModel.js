@@ -16,7 +16,9 @@ const RepositorySchema = new Schema({
         },
     ],
     visibility:{
-        type: Boolean,
+        type: String,
+        enum: ["public", "private"],
+        default: "public"
     },
     owner: {
         type: Schema.Types.ObjectId,
@@ -33,4 +35,4 @@ const RepositorySchema = new Schema({
 
 const Repository = mongoose.model("Repository", RepositorySchema);
 
-export default Repository;
+module.exports =  Repository;

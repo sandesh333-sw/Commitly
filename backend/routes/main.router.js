@@ -7,7 +7,7 @@ const mainRouter = express.Router();
 
 // Routers with base paths
 mainRouter.use("/users", userRouter);
-mainRouter.use("/repos", repoRouter);
+mainRouter.use("/repo", repoRouter);
 mainRouter.use("/issues", issueRouter);
 
 // Root route

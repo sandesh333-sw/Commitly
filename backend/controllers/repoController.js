@@ -40,33 +40,153 @@ async function createRepository(req, res) {
   }
 }
 
-
 async function getAllRepository(req, res) {
-  res.send("All repositoriees fetched");
+  try {
+    const repositories = await Repository.find({})
+      .populate("owner")
+      .populate("issues");
+
+    res.status(200).json(repositories);
+  } catch (error) {
+    console.error("Get all repositories error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
 
 async function fetchRepositoryById(req, res) {
-  res.send("All repositoriees  details fetched");
+  const repoID = req.params.id;
+  try {
+    const repository = await Repository.findById(repoID)
+      .populate("owner")
+      .populate("issues");
+
+    if (!repository) {
+      return res.status(404).json({ message: "Repository not found" });
+    }
+
+    res.status(200).json(repository);
+  } catch (error) {
+    console.error("Fetch repository by ID error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
+
 
 async function fetchRepositoryByName(req, res) {
-  res.send("All repositoriees  details fetched byname");
+  const repoName = req.params.name; 
+  try {
+    const repository = await Repository.findOne({ name: repoName })
+      .populate("owner")
+      .populate("issues");
+
+    if (!repository) {
+      return res.status(404).json({ message: "Repository not found" });
+    }
+
+    res.status(200).json(repository);
+  } catch (error) {
+    console.error("Fetch repository by name error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
+
 
 async function fetchRepositoryForCurrentUser(req, res) {
-  res.send("All repositories for logged in user fetched");
+  const userId = req.user._id || req.user; 
+
+  try {
+    const repositories = await Repository.find({ owner: userId })
+      .populate("owner")
+      .populate("issues");
+
+    if (!repositories || repositories.length === 0) {
+      return res.status(404).json({ error: "No repositories found for this user" });
+    }
+
+    res.status(200).json({ message: "Repositories found", repositories });
+  } catch (error) {
+    console.error("Error during fetching repository:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
+
 
 async function updateRepositoryById(req, res) {
-  res.send("Repository updated");
-}
-async function toggleVisibilityById(req, res) {
-  res.send("All repositoriees  details fetched");
+  const { id } = req.params;
+  const { content, description } = req.body;
+
+  try {
+    const repository = await Repository.findById(id);
+    if (!repository) {
+      return res.status(404).json({ error: "Repository not found" });
+    }
+
+    
+    if (content) {
+      if (!Array.isArray(repository.content)) {
+        repository.content = []; 
+      }
+      repository.content.push(content);
+    }
+
+    if (description) {
+      repository.description = description;
+    }
+
+    const updated = await repository.save();
+
+    res.status(200).json({ message: "Repository updated successfully", repository: updated });
+  } catch (error) {
+    console.error("Error during updating repository:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
 
-async function deleteRepositoryById(req, res) {
-  res.send("All repositoriees  deleted");
+
+async function toggleVisibilityById(req, res) {
+  const { id } = req.params;
+
+  try {
+    const repository = await Repository.findById(id);
+    if (!repository) {
+      return res.status(404).json({ error: "Repository not found" });
+    }
+
+    repository.visibility = repository.visibility === "public" ? "private" : "public";
+
+    const updated = await repository.save();
+
+    res.status(200).json({
+      message: `Repository visibility toggled to ${updated.visibility}`,
+      repository: updated,
+    });
+  } catch (error) {
+    console.error("Error during toggling visibility:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
+
+
+async function deleteRepositoryById(req, res) {
+  const { id } = req.params;
+
+  try {
+    const repository = await Repository.findByIdAndDelete(id);
+
+    if (!repository) {
+      return res.status(404).json({ error: "Repository not found" });
+    }
+
+    res.status(200).json({
+      message: "Repository deleted successfully",
+      repository, 
+    });
+  } catch (error) {
+    console.error("Error during deleting repository:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 
 module.exports = {
   createRepository,

@@ -30,12 +30,8 @@ async function createIssue(req, res) {
 async function getAllIssues(req, res) {
   try {
     const issues = await Issue.find().populate("repository");
-
-    if (!issues || issues.length === 0) {
-      return res.status(404).json({ message: "No issues found" });
-    }
     
-    res.status(200).json(issues);
+    res.status(200).json(issues || []);
   } catch (error) {
     console.error("Get all issues error:", error);
     res.status(500).json({ message: "Internal server error" });

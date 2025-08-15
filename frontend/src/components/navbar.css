@@ -1,30 +1,41 @@
+/* Navbar container */
 nav {
+  position: sticky;
+  top: 0; /* This is crucial for sticky positioning */
+  z-index: 1000; /* Ensure navbar stays above other content */
   display: flex;
   justify-content: space-between;
-  padding-bottom: 10px;
-  border-bottom: 2px solid white;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #e1e4e8;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Logo */
 nav img {
-  height: 50px;
-  border-radius: 100%;
-}
-nav div {
-  display: flex;
+  width: 40px; /* reasonable size */
+  height: 40px;
 }
 
 nav h3 {
-  margin-left: 15px;
-  color: white;
+  margin-left: 10px;
+  color: #24292e;
+  display: inline-block;
 }
 
-nav p {
-  margin-left: 50px;
-  font-weight: bold;
-  color: white;
+/* Links */
+nav div a p {
+  display: inline-block;
+  margin-left: 30px;
+  font-weight: 600;
+  color: #586069;
 }
 
+/* Hover effect */
 nav h3:hover,
-nav p:hover {
-  text-decoration: underline;
+nav div a p:hover {
+  color: #0366d6;
+  text-decoration: none;
 }

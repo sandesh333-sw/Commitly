@@ -95,14 +95,17 @@ async function login(req, res){
       { expiresIn: "1h" }
     );
 
-    // Send response with token
-    res.status(200).json({ token, message: "Login successful" });
+    // Send response with token AND userId
+    res.status(200).json({ 
+      token, 
+      userId: existingUser._id.toString(), // Convert ObjectId to string
+      message: "Login successful" 
+    });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 async function getAllUsers(req, res)  {
   try {

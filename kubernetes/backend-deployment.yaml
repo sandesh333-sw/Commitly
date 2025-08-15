@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: commitly
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: ${DOCKER_REGISTRY}/commitly-backend:${IMAGE_TAG}
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGODB_URI
+          value: "mongodb://root:example@mongodb:27017/commitly?authSource=admin"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: jwt-secret
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: commitly
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP

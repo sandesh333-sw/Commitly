@@ -79,6 +79,15 @@ async function startServer() {
   app.use(cors({ origin: '*' }));
   app.use(express.json());
 
+  // Health check endpoint for Kubernetes/Render
+  app.get('/health', (req, res) => {
+    res.status(200).json({
+      status: 'ok',
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString()
+    });
+  });
+
   const mongoURI = process.env.MONGO_URI;
 
   try {

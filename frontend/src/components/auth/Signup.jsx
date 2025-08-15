@@ -1,13 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../../authContext"; 
-
-import { PageHeader, Box, Button } from "@primer/react"; 
-import "./auth.css"; 
-
-import logo from "../../assets/logo.png";
-
 import { Link } from "react-router-dom";
+import "./auth.css";
+import logo from "../../assets/logo.png";
+import config from "../../config";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -22,7 +19,7 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:3000/signup", {
+      const res = await axios.post(`${config.apiUrl}/signup`, {
         email,
         password,
         username,
@@ -42,75 +39,60 @@ const Signup = () => {
   };
 
   return (
-    <div className="login-wrapper">
-      <div className="login-logo-container">
-        <img className="logo-login" src={logo} alt="Logo" />
-      </div>
-
-      <div className="login-box-wrapper">
-        <div className="login-heading">
-          <Box sx={{ padding: 1 }}>
-            <PageHeader>
-              <PageHeader.TitleArea variant="large">
-                <PageHeader.Title>Sign Up</PageHeader.Title>
-              </PageHeader.TitleArea>
-            </PageHeader>
-          </Box>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-logo-container">
+          <img className="auth-logo" src={logo} alt="Logo" />
         </div>
-
-        <div className="login-box">
-          <div>
-            <label className="label">Username</label>
+        
+        <h2 className="auth-title">Create your account</h2>
+        
+        <form className="auth-form" onSubmit={handleSignup}>
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
             <input
-              autoComplete="off"
-              name="Username"
-              id="Username"
-              className="input"
               type="text"
+              id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
             />
           </div>
-
-          <div>
-            <label className="label">Email address</label>
+          
+          <div className="form-group">
+            <label htmlFor="email">Email address</label>
             <input
-              autoComplete="off"
-              name="Email"
-              id="Email"
-              className="input"
               type="email"
+              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
-
-          <div>
-            <label className="label">Password</label>
+          
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
             <input
-              autoComplete="off"
-              name="Password"
-              id="Password"
-              className="input"
               type="password"
+              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
-
-          <Button
-            variant="primary"
-            className="login-btn"
+          
+          <button 
+            type="submit"
+            className="auth-button"
             disabled={loading}
-            onClick={handleSignup}
           >
-            {loading ? "Loading..." : "Signup"}
-          </Button>
-        </div>
-
-        <div className="pass-box">
+            {loading ? "Creating account..." : "Create account"}
+          </button>
+        </form>
+        
+        <div className="auth-footer">
           <p>
-            Already have an account? <Link to="/auth">Login</Link>
+            Already have an account? <Link to="/auth">Sign in</Link>
           </p>
         </div>
       </div>

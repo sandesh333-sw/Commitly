@@ -1,8 +1,7 @@
-
+import React from "react";
 import { Link } from "react-router-dom";
 import "./navbar.css";
-// import your custom logo
-import logo from "../assets/logoblack.png";
+import logo from "../assets/logoblack.png"
 
 const Navbar = () => {
   return (
@@ -13,7 +12,7 @@ const Navbar = () => {
             src={logo}          
             alt="Logo"
           />
-          <h3>GitHub</h3>
+          <h3>Commitly</h3>
         </div>
       </Link>
       <div>

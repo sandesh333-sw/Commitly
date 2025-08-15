@@ -76,7 +76,10 @@ async function startServer() {
   const app = express();
   const port = process.env.PORT || 3000;
 
-  app.use(cors({ origin: '*' }));
+  app.use(cors({
+    origin: ['https://commitly-frontend.onrender.com', 'http://localhost:5173', 'http://localhost:5174'],
+    credentials: true
+  }));
   app.use(express.json());
 
   // Health check endpoint for Kubernetes/Render

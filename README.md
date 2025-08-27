@@ -1,115 +1,125 @@
 # Commitly
 
-A simple GitHub-like app with a Node.js + Express + MongoDB backend and a React + Vite frontend. Includes a tiny local VCS-like CLI that pushes/pulls commit snapshots to S3.
+Commitly is a GitHub-inspired platform for managing code repositories. Create projects, track issues, and collaborate with other developers - all in one place.
 
-## Monorepo Structure
+## What's Inside
 
-- `backend/`: Express API, Socket.IO, MongoDB
-- `frontend/`: React (Vite), Primer components
+This project combines a modern React frontend with a  Node.js backend:
 
-## Prerequisites
+- **Frontend**: React with Vite, clean UI components
+- **Backend**: Express API with MongoDB storage
+- **Bonus**: Simple CLI for local version control with S3 storage
 
-- Node.js 18+
-- MongoDB (Atlas or local)
-- AWS account with an S3 bucket (optional; only for CLI push/pull)
+## Getting Started
 
-## Environment
+### Setup
 
-Create `backend/.env`:
+1. Make sure you have Node.js 18+ and MongoDB installed
+2. Create a `.env` file in the backend folder:
 
 ```
 PORT=3000
-MONGO_URI=mongodb+srv://<user>:<pass>@<cluster>/<db>?retryWrites=true&w=majority
-JWT_SECRET_KEY=your_jwt_secret
-AWS_REGION=us-east-1
-S3_BUCKET=commitlyp
-AWS_ACCESS_KEY_ID=...
-AWS_SECRET_ACCESS_KEY=...
+MONGO_URI=mongodb://localhost:27017/commitly
+JWT_SECRET_KEY=your_secret_key
 ```
 
-Note: `backend/config/aws-config.js` currently sets `region` and uses bucket `commitlyp`. You can change that or use envs as needed.
+For S3 features (optional):
+```
+AWS_REGION=us-east-1
+S3_BUCKET=your-bucket-name
+AWS_ACCESS_KEY_ID=your-key
+AWS_SECRET_ACCESS_KEY=your-secret
+```
 
-## Install & Run
+### Running the App
 
-- Backend
-  - `cd backend`
-  - `npm install`
-  - Dev: `node index.js start`
-- Frontend
-  - `cd frontend`
-  - `npm install`
-  - `npm run dev`
+**Backend:**
+```
+cd backend
+npm install
+node index.js start
+```
 
-Frontend runs at `http://localhost:5173` by default; backend at `http://localhost:3000`.
+**Frontend:**
+```
+cd frontend
+npm install
+npm run dev
+```
+
+The app will be available at http://localhost:5173, connecting to the backend at http://localhost:3000.
+
+## Main Features
+
+- **User Management**: Create accounts, login, update profiles
+- **Repository Management**: Create public/private repos with descriptions
+- **Issue Tracking**: Create and manage issues for each repository
+- **Dashboard**: View your repos and discover trending projects
 
 ## API Endpoints
 
-Base URL: `http://localhost:3000`
+All endpoints are relative to `http://localhost:3000`
 
-- Users
-  - `POST /signup` → { username, email, password } → { token, userId }
-  - `POST /login` → { email, password } → { token, userId }
-  - `GET /allUsers`
-  - `GET /userProfile/:id`
-  - `PUT /updateProfile/:id` → { email?, password? }
-  - `DELETE /deleteProfile/:id`
+### User Endpoints
+- `POST /signup` - Register a new user
+- `POST /login` - Authenticate user
+- `GET /allUsers` - List all users
+- `GET /userProfile/:id` - Get user details
+- `PUT /updateProfile/:id` - Update user profile
+- `DELETE /deleteProfile/:id` - Delete user account
 
-- Repositories
-  - `POST /create` → { owner, name, description?, visibility?, content?, issues? }
-  - `GET /repo/all`
-  - `GET /repo/:id`
-  - `GET /repo/name/:name`
-  - `GET /repo/user/:userId`
-  - `PUT /repo/update/:id` → { content?, description? }
-  - `PATCH /repo/update/:id` → toggles visibility
-  - `DELETE /repo/delete/:id`
+### Repository Endpoints
+- `POST /create` - Create a new repository
+- `GET /repo/all` - List all repositories
+- `GET /repo/:id` - Get repository by ID
+- `GET /repo/name/:name` - Get repository by name
+- `GET /repo/user/:userID` - Get repositories for a user
+- `PUT /repo/update/:id` - Update repository content/description
+- `PATCH /repo/update/:id` - Toggle repository visibility
+- `DELETE /repo/delete/:id` - Delete a repository
+- `POST /repo/:id/files` - Add file to repository
+- `GET /repo/:id/files` - Get repository files
+- `GET /repo/:id/files/:filePath` - Get file content
+- `DELETE /repo/:id/files/:filePath` - Delete file from repository
 
-- Issues
-  - `POST /issue/create` → { title, description, repository }
-  - `GET /issue/all`
-  - `GET /issue/:id`
-  - `PUT /issue/:id` → { title?, description?, status? }
-  - `DELETE /issue/:id`
+### Issue Endpoints
+- `POST /issue/create` - Create a new issue
+- `GET /issue/all` - List all issues
+- `GET /issue/:id` - Get issue by ID
+- `PUT /issue/:id` - Update an issue
+- `DELETE /issue/:id` - Delete an issue
 
-## Frontend Pages
+## Command Line Tools
 
-- Login `/auth` and Signup `/signup`
-- Dashboard `/` shows suggested repos and your repos
-- Profile `/profile` (stub)
-
-## Wiring Notes
-
-- Login/Signup store `token` and `userId` in `localStorage`. The dashboard fetches:
-  - `GET /repo/user/:userId` for your repos
-  - `GET /repo/all` for suggested repos
-- If you change API base, update axios calls in `frontend/src/components/*`.
-
-## CLI (local VCS)
-
-Run from `backend/` project using yargs commands:
+Commitly includes a simple Git-like CLI for local version control:
 
 ```
+# Initialize a repo
 node index.js init
-node index.js add <path/to/file>
-node index.js commit "message"
+
+# Add files
+node index.js add myfile.txt
+
+# Commit changes
+node index.js commit "Added new feature"
+
+# Push/pull from S3
 node index.js push
 node index.js pull
-node index.js revert --commitId <id>
+
+# Revert to previous commit
+node index.js revert --commitId abc123
 ```
 
-Creates a `.commitly/` folder with `staging/` and `commits/`. Push/pull moves commit files to S3 under `commits/<id>/`.
+## Tech Stack
 
-## Development Standards
+- **Frontend**: React, React Router, Axios
+- **Backend**: Express, MongoDB, JWT authentication
+- **Storage**: MongoDB for app data, S3 for CLI version control
 
-- Code style: basic, readable, small functions, early returns
-- Security: bcrypt password hashing, JWT auth (add auth middleware to protect private routes as needed)
-- Error handling: proper HTTP statuses and JSON messages
-- Branching: feature branches, PR reviews
+## Next Steps
 
-## Roadmap / Improvements
-
-- Add protected routes and JWT header support
-- Create pages for Create Repo and Repo Details (toggle visibility, update, delete, issues)
-- Enhance Profile page to view/update/delete user
-- Add global axios baseURL and interceptor for Authorization
-- UI polish with consistent spacing, empty states, and loading indicators
+- Add real-time collaboration features
+- Implement file editing in the browser
+- Add search functionality across repositories
+- Improve mobile responsiveness

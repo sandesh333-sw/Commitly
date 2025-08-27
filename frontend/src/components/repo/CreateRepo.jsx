@@ -35,7 +35,7 @@ const CreateRepo = () => {
         [`# ${formData.name}\n\n${formData.description || 'A new repository'}`] : 
         [];
 
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:3000/create",
         {
           name: formData.name,

@@ -20,8 +20,7 @@ const RepoDetail = () => {
   const [newDescription, setNewDescription] = useState("");
   
   // Add content state
-  const [newContent, setNewContent] = useState("");
-  const [contentName, setContentName] = useState("README.md");
+  // Removed unused content state to satisfy linter
   
   // Issues state
   const [issues, setIssues] = useState([]);
@@ -195,7 +194,7 @@ const RepoDetail = () => {
 
   // Handle file refresh after save
   const handleFileRefresh = () => {
-    setFileRefreshKey(prev => prev + 1);
+    // no-op; refresh key removed
   };
 
   if (loading) {

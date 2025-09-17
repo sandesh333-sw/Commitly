@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: commitly-frontend-service
+  labels:
+    app: commitly
+    component: frontend
+spec:
+  selector:
+    app: commitly
+    component: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer # Exposes the service externally

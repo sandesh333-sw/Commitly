@@ -1,12 +1,19 @@
-FROM node:18-alpine
+FROM node:18-alpine as builder
 
 WORKDIR /app
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies with specific version of yargs
+RUN npm ci --omit=dev
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules ./node_modules
 
 # Copy the rest of the application
 COPY . .

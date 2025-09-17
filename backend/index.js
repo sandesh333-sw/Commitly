@@ -8,8 +8,15 @@ const {Server} = require("socket.io");
 dotenv.config();
 const mainRouter = require("./routes/main.router.js");
 
-const yargs = require("yargs");
-const { hideBin } = require("yargs/helpers");
+// Use dynamic import for ESM modules
+const yargs = async function() {
+  const yargsModule = await import('yargs');
+  return yargsModule.default;
+};
+const { hideBin } = async function() {
+  const helpersModule = await import('yargs/helpers');
+  return helpersModule.hideBin;
+}();
 
 const { initRepo } = require("./controllers/init.js");
 const { addRepo } = require("./controllers/add.js");

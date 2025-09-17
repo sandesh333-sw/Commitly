@@ -117,9 +117,29 @@ node index.js revert --commitId abc123
 - **Backend**: Express, MongoDB, JWT authentication
 - **Storage**: MongoDB for app data, S3 for CLI version control
 
-## Next Steps
+## Kubernetes
 
-- Add real-time collaboration features
-- Implement file editing in the browser
-- Add search functionality across repositories
-- Improve mobile responsiveness
+# Kubernetes
+
+This is the industry standard for Kubernetes deployments.  
+It may seem long, but each file serves a specific purpose following best practices.
+
+## Why multiple files?
+
+- **Separation of concerns** – Each component (frontend/backend) has its own files, making it easier to manage and update independently.  
+- **Security best practices** – Secrets are separated from application code and properly encrypted.  
+- **Resource management** – CPU/memory limits prevent any container from consuming too many resources, ensuring stability.  
+- **Horizontal auto-scaling** – Automatically creates new containers when load increases, essential for production reliability.  
+- **Health monitoring** – Readiness/liveness probes ensure your app is actually working, not just running.  
+- **Service discovery** – Services allow components to find each other without hardcoding IP addresses.  
+- **Ingress configuration** – Routes external traffic properly to internal services.  
+
+## Primary Benefits
+
+- **Reliability** – Your app will self-heal if containers crash.  
+- **Scalability** – Can handle more traffic without manual intervention.  
+- **Portability** – Works the same locally or in any cloud (GKE, AWS, Azure).  
+- **Repeatability** – Environment is defined as code, eliminating "it works on my machine" problems.  
+
+## Note
+- Run and tested on my local computer

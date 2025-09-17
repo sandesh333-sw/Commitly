@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: commitly-frontend
+  labels:
+    app: commitly
+    component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: commitly
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: commitly
+        component: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: your-docker-repo/commitly-frontend:latest # Relevant image to be provided here
+        ports:
+        - containerPort: 80 # Nginx default port
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"

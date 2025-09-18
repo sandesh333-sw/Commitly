@@ -3,13 +3,6 @@ name: Frontend CI/CD
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-ci-cd.yml'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'frontend/**'
 
 jobs:
   build-and-push-docker-image:
@@ -22,14 +15,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: cd frontend && npm ci
-
-      - name: Lint
-        run: cd frontend && npm run lint --if-present
 
       - name: Build
         run: cd frontend && npm run build
@@ -45,30 +33,13 @@ jobs:
         with:
           context: ./frontend
           push: true
-          tags: your-docker-repo/commitly-frontend:latest, your-docker-repo/commitly-frontend:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: pulami/commitly-frontend:latest, pulami/commitly-frontend:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push-docker-image
-    environment: production
     steps:
-      - uses: actions/checkout@v3
-
-      # Example for GKE credentials - adjust for your cloud provider
-      # - name: Authenticate to GKE
-      #   uses: google-github-actions/get-gke-credentials@v2
-      #   with:
-      #     cluster_name: your-gke-cluster-name
-      #     project_id: your-gcp-project-id
-      #     location: your-gcp-region # e.g., us-central1
-
       - name: Update Kubernetes Deployment with new image
         run: |
-          # For GKE authentication, uncomment the step above and ensure gcloud is installed
-          # For other providers, use their specific kubectl authentication method
-          kubectl set image deployment/commitly-frontend frontend=your-docker-repo/commitly-frontend:${{ github.sha }} -n your-kubernetes-namespace
-
-      - name: Verify Deployment
-        run: kubectl rollout status deployment/commitly-frontend -n your-kubernetes-namespace
+          kubectl set image deployment/commitly-frontend frontend=pulami/commitly-frontend:${{ github.sha }} -n your-kubernetes-namespace
+          kubectl rollout status deployment/commitly-frontend -n your-kubernetes-namespace

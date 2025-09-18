@@ -122,7 +122,7 @@ node index.js revert --commitId abc123
 # Kubernetes
 
 This is the industry standard for Kubernetes deployments.  
-It may seem long, but each file serves a specific purpose following best practices.
+Each file serves a specific purpose following best practices.
 
 ## Why multiple files?
 

@@ -2,11 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: commitly-backend
+  namespace: commitly
   labels:
     app: commitly
     component: backend
 spec:
-  replicas: 2 # Start with 2 replicas for high availability
+  replicas: 1  # Starting with 1 replica to save costs
   selector:
     matchLabels:
       app: commitly
@@ -19,7 +20,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: your-docker-repo/commitly-backend:latest # Relevant image here
+        image: pulami/commitly-backend:latest
         ports:
         - containerPort: 3000
         env:
@@ -55,20 +56,20 @@ spec:
               key: aws-secret-access-key
         resources:
           requests:
-            cpu: "100m"
-            memory: "128Mi"
+            cpu: "50m"      
+            memory: "64Mi" 
           limits:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: "200m"     
+            memory: "256Mi" 
         livenessProbe:
           httpGet:
-            path: /health # Your health check endpoint
+            path: /health
             port: 3000
-          initialDelaySeconds: 15
-          periodSeconds: 20
+          initialDelaySeconds: 30  
+          periodSeconds: 30
         readinessProbe:
           httpGet:
             path: /health
             port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 10
+          initialDelaySeconds: 10
+          periodSeconds: 15

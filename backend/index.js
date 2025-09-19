@@ -1,23 +1,19 @@
+// index.js
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const http = require("http");
-const {Server} = require("socket.io");
+const { Server } = require("socket.io");
+const yargs = require("yargs");
+const { hideBin } = require("yargs/helpers");
+
+// Load environment variables
 dotenv.config();
+
+// Import your modules
 const mainRouter = require("./routes/main.router.js");
-
-// Use dynamic import for ESM modules
-const yargs = async function() {
-  const yargsModule = await import('yargs');
-  return yargsModule.default;
-};
-const { hideBin } = async function() {
-  const helpersModule = await import('yargs/helpers');
-  return helpersModule.hideBin;
-}();
-
 const { initRepo } = require("./controllers/init.js");
 const { addRepo } = require("./controllers/add.js");
 const { commitRepo } = require("./controllers/commit.js");
@@ -25,104 +21,92 @@ const { pushRepo } = require("./controllers/push.js");
 const { pullRepo } = require("./controllers/pull.js");
 const { revertRepo } = require("./controllers/revert.js");
 
+// Yargs CLI commands
 yargs(hideBin(process.argv))
   .command("start", "Starts a new server", {}, startServer)
-  .command("init", "Initialise a new repository", {}, initRepo)
-
+  .command("init", "Initialize a new repository", {}, initRepo)
   .command(
-    "add<file>",
+    "add <file>",
     "Add a file to repository",
     (yargs) => {
-      yargs.positional("file", {
-        describe: "File to be added to staging area",
-        type: "string",
-      });
+      yargs.positional("file", { describe: "File to add", type: "string" });
     },
-    (argv) => {
-      addRepo(argv.file);
-    }
+    (argv) => addRepo(argv.file)
   )
-
   .command(
     "commit <message>",
-    "commit the staged files",
+    "Commit the staged files",
     (yargs) => {
-      yargs.positional("message", {
-        describe: "Commit message",
-        type: "string",
-      });
+      yargs.positional("message", { describe: "Commit message", type: "string" });
     },
-    (argv) => {
-      commitRepo(argv.message);
-    }
-    
+    (argv) => commitRepo(argv.message)
   )
-
   .command("push", "Push commits", {}, pushRepo)
-
-  .command("pull", "pull commits from repo", {}, pullRepo)
-
+  .command("pull", "Pull commits from repo", {}, pullRepo)
   .command(
-    "revert",
-    "revert to specific commit",
+    "revert <commitId>",
+    "Revert to a specific commit",
     (yargs) => {
-      yargs.positional("commitId", "revert to specific commit", {
-        describe: "Commit id ",
-        type: "string",
-      });
+      yargs.positional("commitId", { describe: "Commit ID", type: "string" });
     },
-    (argv) => {
-      revertRepo(argv.commitID);
-    }
+    (argv) => revertRepo(argv.commitId)
   )
+  .demandCommand(1, "Please provide at least one command")
+  .help()
+  .argv;
 
-  .demandCommand(1, "Please insert at least one command")
-  .help().argv;
-
+// Start server function
 async function startServer() {
   const app = express();
   const port = process.env.PORT || 3000;
 
-  app.use(cors({
-    origin: ['https://commitly-frontend.onrender.com', 'http://localhost:5173', 'http://localhost:5174'],
-    credentials: true
-  }));
+  // Enable CORS
+  app.use(
+    cors({
+      origin: [
+        "https://commitly-frontend.onrender.com",
+        "http://localhost:5173",
+        "http://localhost:5174",
+      ],
+      credentials: true,
+    })
+  );
+
+  // Parse JSON requests
   app.use(express.json());
+  app.use(bodyParser.json());
 
   // Health check endpoint for Kubernetes/Render
-  app.get('/health', (req, res) => {
+  app.get("/health", (req, res) => {
     res.status(200).json({
-      status: 'ok',
+      status: "ok",
       uptime: process.uptime(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   });
 
+  // Connect to MongoDB
   const mongoURI = process.env.MONGO_URI;
-
   try {
     await mongoose.connect(mongoURI);
-    console.log('Mongodb connected');
+    console.log("MongoDB connected");
   } catch (err) {
-    console.error('Unable to connect', err);
-    process.exit(1); 
+    console.error("MongoDB connection failed:", err);
+    process.exit(1); // Exit so Kubernetes pod knows something is wrong
   }
 
+  // Main routes
   app.use("/", mainRouter);
 
-  
+  // HTTP + Socket.IO
   const httpServer = http.createServer(app);
-
   const io = new Server(httpServer, {
-    cors: {
-      origin: '*',
-      methods: ['GET', 'POST'],
-    },
+    cors: { origin: "*", methods: ["GET", "POST"] },
   });
 
-  io.on('connection', (socket) => {
-    socket.on('joinRoom', (userID) => {
-      console.log('User joined room:', userID);
+  io.on("connection", (socket) => {
+    socket.on("joinRoom", (userID) => {
+      console.log("User joined room:", userID);
       socket.join(userID);
     });
   });
@@ -130,5 +114,4 @@ async function startServer() {
   httpServer.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
-  //fixed workflow errors
 }

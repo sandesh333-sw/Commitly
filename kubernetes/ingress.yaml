@@ -2,12 +2,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: commitly-ingress
+  namespace: commitly
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "gce"   # GKE default ingress controller
 spec:
   rules:
-  - host: commitly.your-domain.com # Replace with your domain
-    http:
+  - http:
       paths:
       - path: /api
         pathType: Prefix

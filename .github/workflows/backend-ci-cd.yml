@@ -7,7 +7,6 @@ on:
 jobs:
   build-and-push-docker-image:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
 
@@ -33,13 +32,30 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: pulami/commitly-backend:latest, pulami/commitly-backend:${{ github.sha }}
+          tags: pulami/commitly-backend:latest,pulami/commitly-backend:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push-docker-image
     steps:
-      - name: Update Kubernetes Deployment with new image
+      - uses: actions/checkout@v3
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up GKE credentials
         run: |
-          kubectl set image deployment/commitly-backend backend=pulami/commitly-backend:${{ github.sha }} -n your-kubernetes-namespace
-          kubectl rollout status deployment/commitly-backend -n your-kubernetes-namespace
+          gcloud container clusters get-credentials commitly --zone us-central1-a --project commitlydev
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
+      - name: Deploy to GKE
+        run: |
+          kubectl set image deployment/commitly-backend backend=pulami/commitly-backend:${{ github.sha }} -n commitly
+          kubectl rollout status deployment/commitly-backend -n commitly
